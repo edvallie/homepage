@@ -1,0 +1,36 @@
+.headerNavContainer {
+border: solid 1px red;
+text-align: center;
+}
+a.headerNav:link {
+	color: red;
+}
+a.headerNav:hover {
+	color: yellow;
+}
+a.headerNav:active {
+	color: red;
+}
+a.headerNav:visited {
+	color: red;
+}
+#header {
+margin-top: 20px;
+}
+
+#content {
+	padding-top: 50px;
+}
+.gigantic {
+	font-family: Comic Sans;
+	font-size: 72px;
+}
+
+/** im so funny **/
+.ripped {
+	background-color: grey;
+}
+
+.externalLink {
+	
+}
