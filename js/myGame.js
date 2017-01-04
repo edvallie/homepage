@@ -6,6 +6,7 @@ function preload() {
     game.load.spritesheet('eric', 'assets/eric.png', 32, 48);
     game.load.spritesheet('bug', 'assets/bluemetal_32x32x4.png', 32, 32);
     game.load.bitmapFont('desyrel', 'bitmapFonts/desyrel.png', 'bitmapFonts/desyrel.xml');
+    game.load.bitmapFont('arcadeFont', 'fonts/arcade.png', 'fonts/arcade.fnt');
 }
 
 var player;
@@ -69,7 +70,7 @@ function loseGame() {
     //s.play('spin', 20, true);
     //s.body.velocity.set(game.rnd.integerInRange(-200, 200), game.rnd.integerInRange(-200, 200));
     game.world.removeAll();
-    var text = game.add.bitmapText(400, 300, 'desyrel', 'Game Over', 64);
+    var text = game.add.bitmapText(400, 300, 'arcadeFont', 'Game Over', 64);
     text.anchor.x = 0.5;
     text.anchor.y = 0.5;
 
