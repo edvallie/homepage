@@ -3,7 +3,7 @@ var game = new Phaser.Game('90', '90', Phaser.CANVAS, 'content', { preload: prel
 
 function preload() {
 
-    game.load.spritesheet('eric', 'assets/eric_testing.png', 32, 48);
+    game.load.spritesheet('eric', 'assets/eric.png', 32, 48);
 
 }
 
