@@ -39,6 +39,10 @@ Red: #E3072A;
 	width: 0;
 }
 
+.color2 {
+    color: #098A74;
+}
+
 .headerNavContainer {
 border: solid 1px #098A74;
 text-align: center;
