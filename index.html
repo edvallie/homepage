@@ -7,6 +7,7 @@
     <title>Eric Valliere</title>
 
     <link href="css/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quantico" rel="stylesheet">
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -18,7 +19,12 @@
     <script src="js/jquery-3.1.1.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/phaser.min.js"></script>
-    <script src="js/myGame.js"></script>
+    <script>
+    
+    $( document ).ready(function() {
+        $.getScript('js/myGame.js');
+    });
+    </script>
 </head>
 
 <body class="ripped">

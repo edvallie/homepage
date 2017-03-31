@@ -8,6 +8,11 @@ Red: #E3072A;
 
  */
 
+@font-face {
+    font-family: Arcade;
+    src: url("/fonts/Arcade.ttf");
+    }
+
 .chatBubble {
 	font-size: xx-large;
 	position:relative;

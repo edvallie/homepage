@@ -1,12 +1,15 @@
 
 var game = new Phaser.Game('90', '90', Phaser.CANVAS, 'content', { preload: preload, create: create, update: update, render: render }, 1);
 
+
 function preload() {
 
     game.load.spritesheet('eric', 'assets/eric.png', 32, 48);
     game.load.spritesheet('bug', 'assets/bluemetal_32x32x4.png', 32, 32);
     game.load.image('bullet', 'assets/purple_ball.png');
     game.load.bitmapFont('arcadeFont', 'fonts/arcade.png', 'fonts/arcade.fnt');
+
+
 }
 
 var player;
@@ -16,8 +19,13 @@ var cursors;
 var jumpButton;
 var bg;
 var bullets;
-var fireRate = 100;
+var fireRate = 150;
 var nextFire = 0;
+var score = 0;
+var scoreText;
+var text;
+var text2;
+var text3;
 
 function create() {
 
@@ -55,9 +63,10 @@ function create() {
     bullets.setAll('checkWorldBounds', true);
     bullets.setAll('outOfBoundsKill', true);
 
-    //player.body.onCollide = new Phaser.Signal();
-    //player.body.onCollide.add(loseGame, this);
-    
+    //Add the text for the score
+
+    scoreText = game.add.bitmapText(game.world.centerX, 50, 'arcadeFont', 'Score: 0', 20);
+
     //spawn new bugs every second, difficulty will ramp within createBug()
     game.time.events.repeat(Phaser.Timer.SECOND, 10000, createBug, this);
 
@@ -68,15 +77,20 @@ function create() {
     altLeft = game.input.keyboard.addKey(Phaser.Keyboard.A);
     altRight = game.input.keyboard.addKey(Phaser.Keyboard.E);
     altJump = game.input.keyboard.addKey(Phaser.Keyboard.COMMA);
+    altaltRight = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    altaltJump = game.input.keyboard.addKey(Phaser.Keyboard.W);
+    
+    restartButton = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 }
 
 function createBug(){
     
-    var s = bugs.create(game.rnd.integerInRange(100,700), game.rnd.integerInRange(32, 200), 'bug');
-    s.animations.add('spin', [0, 1, 2, 3]);
-    s.play('spin', 20, true);
-    s.body.velocity.set(game.rnd.integerInRange(-200, 200), game.rnd.integerInRange(-200, 200));
-
+    for (i = 0; i < (this.game.time.totalElapsedSeconds()); i++) {
+        var s = bugs.create(game.rnd.integerInRange(100,700), game.rnd.integerInRange(32, 200), 'bug');
+        s.animations.add('spin', [0, 1, 2, 3]);
+        s.play('spin', 20, true);
+        s.body.velocity.set(game.rnd.integerInRange(-200, 200), game.rnd.integerInRange(-200, 200));
+    }
 }
 
 function loseGame() {
@@ -84,10 +98,24 @@ function loseGame() {
     //s.play('spin', 20, true);
     //s.body.velocity.set(game.rnd.integerInRange(-200, 200), game.rnd.integerInRange(-200, 200));
     game.world.removeAll();
-    var text = game.add.bitmapText(600, 300, 'arcadeFont', 'Game Over', 64);
+    text = game.add.bitmapText(600, 300, 'arcadeFont', 'Game Over', 64);
+    text2 = game.add.bitmapText(600, 350, 'arcadeFont', "Score: " + score, 32);
+//    text3 = game.add.bitmapText(600, 400, 'arcadeFont', "Press ENTER to play again!", 32);
     text.anchor.x = 0.5;
     text.anchor.y = 0.5;
+    text2.anchor.x = 0.5;
+    text2.anchor.y = 0.6;
+  //  text3.anchor.x = 0.5;
+   // text3.anchor.y = 0.7;
 
+}
+
+function killSprites(bullet, bug) {
+
+bullet.kill();
+bug.kill();
+score++;
+scoreText.setText("Score: " + score);
 }
 
 
@@ -97,11 +125,18 @@ function update() {
 
     // you lose if you touch a bug
     game.physics.arcade.collide(player, bugs, loseGame, null, this);
+//    game.physics.arcade.collide(bullets, bugs, killSprites, null, this);
+    game.physics.arcade.collide(bullets, bugs, killSprites, null, this);
 
     player.body.velocity.x = 0;
+
     
     if (game.input.activePointer.isDown) {
         fire();
+    }
+
+    if (restartButton.isDown) {
+        //game.state.start('Play');
     }
 
     if (cursors.left.isDown || altLeft.isDown)
@@ -114,7 +149,7 @@ function update() {
             facing = 'left';
         }
     }
-    else if (cursors.right.isDown || altRight.isDown)
+    else if (cursors.right.isDown || altRight.isDown || altaltRight.isDown)
     {
         player.body.velocity.x = 150;
 
@@ -143,7 +178,7 @@ function update() {
         }
     }
     
-    if ((jumpButton.isDown || altJump.isDown || cursors.up.isDown) && player.body.onFloor() && game.time.now > jumpTimer)
+    if ((jumpButton.isDown || altJump.isDown || cursors.up.isDown || altaltJump.isDown) && player.body.onFloor() && game.time.now > jumpTimer)
     {
         player.body.velocity.y = -250;
         jumpTimer = game.time.now + 750;
@@ -158,9 +193,8 @@ function fire() {
         nextFire = game.time.now + fireRate;
 
         var bullet = bullets.getFirstDead();
-
         bullet.reset(player.x - 8, player.y - 8);
-
+        bullet.body.allowGravity = false;
         game.physics.arcade.moveToPointer(bullet, 300);
     }
 
