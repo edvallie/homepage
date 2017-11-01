@@ -12,7 +12,29 @@ Red: #E3072A;
     font-family: Arcade;
     src: url("/fonts/Arcade.ttf");
     }
+.colorPicker {
 
+    height: 15px;
+    width: 15px;
+    margin-top: 17.5px;
+
+}
+
+.style1 {
+    background-color: #5FACC8;
+}
+.style2 {
+    background-color: #BF7943;
+}
+.style3 {
+    background-color: #466455;
+}
+.style4 {
+    background-color: #FBDAA8;
+}
+.style5 {
+    background-color: #F95E6A;
+}
 .chatBubble {
 	font-size: xx-large;
 	position:relative;

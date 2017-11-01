@@ -14,6 +14,8 @@ create: function() {
     timer = game.time.create(false);
     timer.loop(1000, createBug, this);
     timer.start();
+    bugCount = 0;
+    score = 0;
 
     game.load.spritesheet('eric', 'assets/eric.png', 32, 48);
     game.load.spritesheet('bug', 'assets/bluemetal_32x32x4.png', 32, 32);
