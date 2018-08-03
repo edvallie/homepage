@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Eric Valliere</title>
+    <title>Dalton Valliere</title>
 
 	<link href="css/style_1.css" rel="stylesheet" id="primaryCss">
     <!-- Bootstrap -->
@@ -19,6 +19,16 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/cssChanger.js"></script>
 
+    <script>
+        var cssFile = getCookie("cssFile");
+
+        if(cssFile != "") {
+            console.log('cookie!');
+            changeCss(cssFile);
+        }
+    </script>
+
+
 
 </head>
 
@@ -27,7 +37,7 @@
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">Eric Valliere</a>
+            <a class="navbar-brand" href="#">Dalton Valliere</a>
         </div>
         <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>

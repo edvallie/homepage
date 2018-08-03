@@ -1,3 +1,25 @@
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function changeCss(file) {
+
+    $('#primaryCss').attr('href', file);
+
+}
+
 $( document ).ready(function() {
 
         var style1 = document.getElementById('style1Div');
@@ -13,7 +35,11 @@ $( document ).ready(function() {
         $(".colorPicker").click(function(e) {
             cssNumber = e.target.id.replace(/\D/g,'');
             cssFile = 'css/style_' + cssNumber + '.css';
-            $('#primaryCss').attr('href', cssFile);
+            document.cookie = "cssFile=" + cssFile;
+            changeCss(cssFile);
+//            $('#primaryCss').attr('href', cssFile);
             console.log(cssFile);
         });
     });
+
+
