@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dalton Valliere</title>
+
+	<link href="css/style_1.css" rel="stylesheet" id="primaryCss">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="js/jquery-3.1.1.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/cssChanger.js"></script>
+
+    <script>
+        var cssFile = getCookie("cssFile");
+
+        if(cssFile != "") {
+            console.log('cookie!');
+            changeCss(cssFile);
+        }
+
+        function changeTool(sel) {
+            tool = sel.value;
+
+            switch(tool) {
+                case 'coffee':
+                    console.log('selected coffee');
+                    $( ".tool" ).hide();
+                    $( "#coffeeTool" ).show();
+                    break;
+                case 'other':
+                    console.log('selected other');
+                    $( ".tool" ).hide();
+                    $( "#otherTool" ).show();
+                    break;
+                default:
+                    console.log('you should never see this');
+            }
+        }
+
+        function ratioChange(sel) {
+            console.log('ratio change: ' + sel.value);
+            ratio = sel.value;
+            water = $( "#inputWater" ).val();
+            grounds = parseFloat(water / ratio).toFixed(2);
+            $( "#inputGrounds" ).val(grounds);
+
+        }
+
+        function waterChange(input) {
+            console.log('water change: ' + input.value);
+            ratio = $( "#selectRatio option:selected" ).val();
+            water = input.value
+            grounds = parseFloat(water / ratio).toFixed(2);
+            $( "#inputGrounds" ).val(grounds);
+        }
+
+        function groundsChange(input) {
+            console.log('grounds change: ' + input.value);
+            ratio = $( "#selectRatio option:selected" ).val();
+            grounds = input.value;
+            water = (grounds * ratio)
+            $( "#inputWater" ).val(water);
+        }
+    </script>
+
+
+
+</head>
+
+<body class="ripped">
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Dalton Valliere</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+<!--            <li><a href="/projects.html">Projects</a></li> -->
+            <li><a href="#">About Me</a></li>
+            <li class="active"><a href="tools.html">Tools</a></li>
+            <li><a href="/dalton_valliere_resume.pdf" target="_blank">Resume</a></li>
+            <li><a href="http://github.com/edvallie" target="_blank">Git</a></li>
+            <li><div id="style1Div" class="colorPicker style1"></div></li>
+            <li><div id="style2Div" class="colorPicker style2"></div></li>
+            <li><div id="style3Div" class="colorPicker style3"></div></li>
+            <li><div id="style4Div" class="colorPicker style4"></div></li>
+            <li><div id="style5Div" class="colorPicker style5"></div></li>
+
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div id="content">
+        <div class="col-md-6">
+            <select id="toolPicker" onchange="changeTool(this);">
+                <option value="coffee">Coffee Ratios</option>
+                <option value="other">Other Thing</option>
+            </select>
+            <br /><br />
+
+            <div id="coffeeTool" class="tool">
+                <label for="ratio">Coffee to Water Ratio</label>
+                <select id="selectRatio" name="ratio" onChange="ratioChange(this);">
+                    <option value="15">1:15</option>
+                    <option value="16">1:16</option>
+                    <option value="17" selected>1:17</option>
+                    <option value="18">1:18</option>
+                    <option value="19">1:19</option>
+                </select>
+                <br />
+
+                <label for="inputWater">Pour Over Water (mL)</label>
+                <input id="inputWater" type="text" name="inputWater" value="200" onchange="waterChange(this);" />
+                <br />
+
+                <label for="inputGrounds">Grounds (g)</label>
+                <input id="inputGrounds" type="text" name="inputGrounds" value="11.76" onchange="groundsChange(this);" />
+                <br />
+
+                    
+            </div>
+            <div id="otherTool" class="tool" style="display: none;">
+                <p>Sorry I really don't need that many tools</p>
+            <div>
+
+        </div>
+    </div>
+
+</div>
+</body>
+
+</html>
