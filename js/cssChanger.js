@@ -40,6 +40,13 @@ $( document ).ready(function() {
 //            $('#primaryCss').attr('href', cssFile);
             console.log(cssFile);
         });
+
+        var cssFile = getCookie("cssFile");
+
+        if(cssFile != "") {
+            console.log('cookie!');
+            changeCss(cssFile);
+        }
     });
 
 
