@@ -11,13 +11,20 @@ Red: #E3072A;
 @font-face {
     font-family: Arcade;
     src: url("/fonts/Arcade.ttf");
-    }
+}
+
 .colorPicker {
 
     height: 15px;
     width: 15px;
     margin-top: 17.5px;
 
+}
+
+@media screen and (max-width: 768px) {
+    #style1Div {
+        margin-left: 15px;
+    }
 }
 
 .style1 {
