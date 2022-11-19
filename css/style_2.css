@@ -8,39 +8,7 @@ Red: #E3072A; //unused
 
  */
 
-@font-face {
-    font-family: Arcade;
-    src: url("/fonts/Arcade.ttf");
-    }
-.colorPicker {
-
-    height: 15px;
-    width: 15px;
-    margin-top: 17.5px;
-
-}
-
-.style1 {
-    background-color: #5FACC8;
-}
-.style2 {
-    background-color: #BF7943;
-}
-.style3 {
-    background-color: #466455;
-}
-.style4 {
-    background-color: #FBDAA8;
-}
-.style5 {
-    background-color: #F95E6A;
-}
-
 .chatBubble {
-	font-size: xx-large;
-	position:relative;
-	padding:15px 30px;
-	margin:0;
 	color:#CBC495;
 	background:#7B8E88; /* default background for browsers without gradient support */
 	/* css3 */
@@ -48,33 +16,22 @@ Red: #E3072A; //unused
 	background:-moz-linear-gradient(#28231D, #7B8E88);
 	background:-o-linear-gradient(#28231D, #7B8E88);
 	background:linear-gradient(#28231D, #7B8E88);
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	border-radius:10px;
-	width: 50%;
 }
 
 
 .chatBubble:after {
-	content: "";
-	position: absolute;
-	bottom: -30px;
-	left: 50px;
-	border-width: 0 0 30px 50px;
-	border-style: solid;
 	border-color: transparent #7B8E88;
-	display: block;
-	width: 0;
 }
 
 .color2 {
     color: #CBC495;
-	font-weight: bold;
+}
+.color3 {
+    color: #28231D;
 }
 
 .headerNavContainer {
-border: solid 1px #CBC495;
-text-align: center;
+    border: solid 1px #CBC495;
 }
 a.headerNav:link {
 	color: #CBC495;
@@ -88,23 +45,8 @@ a.headerNav:active {
 a.headerNav:visited {
 	color: #CBC495;
 }
-#header {
-margin-top: 20px;
-}
-
-#content {
-	padding-top: 50px;
-}
-.gigantic {
-	font-family: Comic Sans;
-	font-size: 72px;
-}
 
 /** im so funny **/
 .ripped {
 	background-color: #BF7943;
-}
-
-.externalLink {
-	
 }
