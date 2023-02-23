@@ -17,16 +17,18 @@
     <script>
         function changeTool(sel) {
             tool = sel.value;
-
+            $( ".tool" ).hide();
             switch(tool) {
                 case 'coffee':
                     console.log('selected coffee');
-                    $( ".tool" ).hide();
                     $( "#coffeeTool" ).show();
+                    break;
+                case 'escape':
+                    console.log('selected escape');
+                    $( "#escapeTool" ).show();
                     break;
                 case 'other':
                     console.log('selected other');
-                    $( ".tool" ).hide();
                     $( "#otherTool" ).show();
                     break;
                 default:
@@ -57,6 +59,11 @@
             grounds = input.value;
             water = (grounds * ratio)
             $( "#inputWater" ).val(water);
+        }
+        function escapeChange(input) {
+            text = input.value;
+            escapedText = (text + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            $( "#escapeOutput" ).val(escapedText);
         }
     </script>
 
@@ -96,6 +103,7 @@
         <div class="col-md-6">
             <select id="toolPicker" onchange="changeTool(this);">
                 <option value="coffee">Coffee Ratios</option>
+                <option value="escape">Escape Strings</option>
                 <option value="other">Other Thing</option>
             </select>
             <br /><br />
@@ -121,6 +129,16 @@
 
                     
             </div>
+            <div id="escapeTool" class="tool" style="display: none;">
+                <div class="col-md-6">
+                    <h3>Input Text</h3>
+                    <input type="textarea" id="escapeSource" class="conversionTextArea" onchange="escapeChange(this);" />
+                </div>
+                <div class="col-md-6">
+                    <h3>Output Text</h3>
+                    <input type="textarea" id="escapeOutput" class="conversionTextArea" />
+                </div>
+            <div>
             <div id="otherTool" class="tool" style="display: none;">
                 <p>Sorry I really don't need that many tools</p>
             <div>
