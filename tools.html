@@ -15,6 +15,38 @@
     <script type="text/javascript" src="js/cssChanger.js"></script>
 
     <script>
+        // Grid state variables
+        let img = null;
+        let canvas = null;
+        let ctx = null;
+
+        // Set up paste listener and canvas once DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+
+            document.addEventListener('paste', function(e) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (const item of items) {
+                    if (item.type.indexOf('image') !== -1) {
+                        const blob = item.getAsFile();
+                        const url = URL.createObjectURL(blob);
+                        const image = new Image();
+                        image.onload = function() {
+                            img = image;
+                            // Draw the pasted image immediately at natural size
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            ctx.drawImage(img, 0, 0);
+                            URL.revokeObjectURL(url);
+                        };
+                        image.src = url;
+                        break;
+                    }
+                }
+            });
+        });
+
         function changeTool(sel) {
             tool = sel.value;
             $( ".tool" ).hide();
@@ -26,6 +58,14 @@
                 case 'escape':
                     console.log('selected escape');
                     $( "#escapeTool" ).show();
+                    break;
+                case 'grid':
+                    console.log('selected grid');
+                    $( '#grid' ).show();
+                    break;
+                case 'brokencolor':
+                    console.log('selected broken color tool');
+                    window.location.href = '/broken_color.html';
                     break;
                 case 'other':
                     console.log('selected other');
@@ -60,11 +100,76 @@
             water = (grounds * ratio)
             $( "#inputWater" ).val(water);
         }
+
         function escapeChange(input) {
             text = input.value;
             escapedText = (text + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
             $( "#escapeOutput" ).val(escapedText);
         }
+
+        function applyGrid() {
+            if (!img) {
+                alert('Please paste an image first!');
+                return;
+            }
+
+            const cols = parseInt(document.getElementById('width').value) || 1;
+            const rows = parseInt(document.getElementById('length').value) || 1;
+
+            if (cols < 1 || rows < 1) {
+                alert('Width and height must be at least 1');
+                return;
+            }
+
+            // Calculate square size based on fitting the image
+            // The square size should be determined by whichever dimension needs smaller squares
+            const squareSize = Math.max(
+                img.width / cols,
+                img.height / rows
+            );
+
+            // Calculate total canvas size based on square grid
+            const canvasWidth = squareSize * cols;
+            const canvasHeight = squareSize * rows;
+
+            // Set canvas size
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            // Clear canvas with light gray background
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            // Calculate position to center the image
+            const offsetX = (canvasWidth - img.width) / 2;
+            const offsetY = (canvasHeight - img.height) / 2;
+
+            // Draw image centered
+            ctx.drawImage(img, offsetX, offsetY);
+
+            // Draw grid
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+
+            // Draw vertical lines
+            for (let i = 0; i <= cols; i++) {
+                const x = i * squareSize;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvasHeight);
+                ctx.stroke();
+            }
+
+            // Draw horizontal lines
+            for (let i = 0; i <= rows; i++) {
+                const y = i * squareSize;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvasWidth, y);
+                ctx.stroke();
+            }
+        }
+
     </script>
 
 
@@ -104,6 +209,8 @@
             <select id="toolPicker" onchange="changeTool(this);">
                 <option value="coffee">Coffee Ratios</option>
                 <option value="escape">Escape Strings</option>
+                <option value="grid">Grid Overlay</option>
+                <option value="brokencolor">Broken Color</option>
                 <option value="other">Other Thing</option>
             </select>
             <br /><br />
@@ -138,10 +245,40 @@
                     <h3>Output Text</h3>
                     <input type="textarea" id="escapeOutput" class="conversionTextArea" />
                 </div>
-            <div>
+            </div> <!-- FIX: was <div> (open tag) instead of </div> -->
             <div id="otherTool" class="tool" style="display: none;">
                 <p>Sorry I really don't need that many tools</p>
-            <div>
+            </div> <!-- FIX: was <div> (open tag) instead of </div> -->
+
+            <div id="grid" class="tool" style="display: none;"> <!-- FIX: was style="" so it showed on load -->
+                <h1>Image Grid Overlay</h1>
+        
+                <div class="instructions">
+                    <p><strong>Instructions:</strong></p>
+                    <p>1. Copy an image (Ctrl+C or Cmd+C)</p>
+                    <p>2. Click in this window and paste (Ctrl+V or Cmd+V)</p>
+                    <p>3. Enter grid dimensions and click "Apply Grid"</p>
+                    <p><strong>Note:</strong> Grid cells are always square. Image will be centered with dead space as needed.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="input-group">
+                        <label for="width">Width (columns):</label>
+                        <input type="number" id="width" min="1" value="3">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="length">Height (rows):</label>
+                        <input type="number" id="length" min="1" value="3">
+                    </div>
+                    
+                    <button onclick="applyGrid()">Apply Grid</button>
+                </div>
+                
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -150,3 +287,4 @@
 </body>
 
 </html>
+

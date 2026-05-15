@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Broken Color Mixer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --text: #e8e4dc;
+    --muted: #666;
+    --a: #e07020;
+    --b: #1a8888;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  header h1 em {
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  header p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+
+  .color-pick {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .color-pick:focus-within {
+    border-color: #444;
+  }
+
+  .pick-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .swatch-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .swatch-input {
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 2px;
+    background: none;
+    flex-shrink: 0;
+  }
+
+  .swatch-input::-webkit-color-swatch-wrapper { padding: 0; }
+  .swatch-input::-webkit-color-swatch { border-radius: 3px; border: none; }
+  .swatch-input::-moz-color-swatch { border-radius: 3px; border: none; }
+
+  .hex-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    width: 100%;
+    padding: 4px 0;
+    outline: none;
+    letter-spacing: 0.08em;
+    transition: border-color 0.2s;
+  }
+
+  .hex-input:focus { border-color: #666; }
+
+  /* presets */
+  .presets-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .preset {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .preset:hover { transform: scale(1.2); }
+  .preset.active { border-color: var(--text); }
+
+  /* output section */
+  .output {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .swatches-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .swatch-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .swatch-block-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .big-swatch {
+    height: 120px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* checkerboard canvas */
+  #checker-canvas {
+    image-rendering: pixelated;
+    width: 100%;
+    height: 120px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: block;
+  }
+
+  /* checker size slider */
+  .checker-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .checker-control label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text);
+    cursor: pointer;
+  }
+
+  .checker-size-val {
+    font-size: 12px;
+    color: var(--muted);
+    width: 40px;
+    text-align: right;
+  }
+
+  /* perceived color */
+  .perceived {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .perceived-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .perceived-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #perceived-swatch {
+    width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s;
+  }
+
+  .perceived-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  #perceived-hex {
+    font-size: 20px;
+    letter-spacing: 0.06em;
+    transition: color 0.3s;
+  }
+
+  #perceived-name {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  .tip {
+    margin-top: 32px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>broken <em>color</em></h1>
+  <p>optical mixing · pointillist simulation</p>
+</header>
+
+<div class="controls">
+  <div class="color-pick" id="panel-a">
+    <div class="pick-label">Color A</div>
+    <div class="swatch-row">
+      <input type="color" class="swatch-input" id="color-a-picker" value="#e07020"/>
+      <input type="text"  class="hex-input"    id="color-a-hex"    value="#e07020" maxlength="7" spellcheck="false"/>
+    </div>
+    <div class="presets-row" id="presets-a"></div>
+  </div>
+
+  <div class="color-pick" id="panel-b">
+    <div class="pick-label">Color B</div>
+    <div class="swatch-row">
+      <input type="color" class="swatch-input" id="color-b-picker" value="#1a8888"/>
+      <input type="text"  class="hex-input"    id="color-b-hex"    value="#1a8888" maxlength="7" spellcheck="false"/>
+    </div>
+    <div class="presets-row" id="presets-b"></div>
+  </div>
+</div>
+
+<div class="output">
+  <div class="swatches-display">
+    <div class="swatch-block">
+      <div class="swatch-block-label">Color A</div>
+      <div class="big-swatch" id="disp-a"></div>
+    </div>
+    <div class="swatch-block">
+      <div class="swatch-block-label">Checkerboard mix</div>
+      <canvas id="checker-canvas"></canvas>
+    </div>
+    <div class="swatch-block">
+      <div class="swatch-block-label">Color B</div>
+      <div class="big-swatch" id="disp-b"></div>
+    </div>
+  </div>
+
+  <div class="checker-control">
+    <label>Cell size</label>
+    <input type="range" id="cell-size" min="2" max="32" value="10"/>
+    <span class="checker-size-val" id="cell-size-val">10px</span>
+  </div>
+
+  <div class="perceived">
+    <div class="perceived-label">Perceived mixed color (average)</div>
+    <div class="perceived-row">
+      <div id="perceived-swatch"></div>
+      <div class="perceived-info">
+        <div id="perceived-hex">#000000</div>
+        <div id="perceived-name">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="tip">
+  Drag the cell size slider small to see the colors blend in your eye.<br/>
+</p>
+
+<script>
+const PRESETS = [
+  '#e03030','#e07020','#f0d000','#22aa44','#2255cc',
+  '#cc00aa','#00bbcc','#882299','#1a8888','#ffffff',
+  '#888888','#111111','#f0b080','#dd4400','#5533bb'
+];
+
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const n = parseInt(hex, 16);
+  return [n>>16&255, n>>8&255, n&255];
+}
+
+function rgbToHex(r,g,b) {
+  return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+function avgColor(hex1, hex2) {
+  const [r1,g1,b1] = hexToRgb(hex1);
+  const [r2,g2,b2] = hexToRgb(hex2);
+  return rgbToHex(Math.round((r1+r2)/2), Math.round((g1+g2)/2), Math.round((b1+b2)/2));
+}
+
+function srgbToLinear(c) {
+  c /= 255;
+  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+
+function rgbToOklab(r, g, b) {
+  const lr = srgbToLinear(r), lg = srgbToLinear(g), lb = srgbToLinear(b);
+  const l = Math.cbrt(0.4122214708*lr + 0.5363325363*lg + 0.0514459929*lb);
+  const m = Math.cbrt(0.2119034982*lr + 0.6806995451*lg + 0.1073969566*lb);
+  const s = Math.cbrt(0.0883024619*lr + 0.2817188376*lg + 0.6299787005*lb);
+  return {
+    L: 0.2104542553*l + 0.7936177850*m - 0.0040720468*s,
+    a: 1.9779984951*l - 2.4285922050*m + 0.4505937099*s,
+    b: 0.0259040371*l + 0.7827717662*m - 0.8086757660*s,
+  };
+}
+
+function nameMix(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const n = parseInt(hex, 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+
+  const { L, a, b: ob } = rgbToOklab(r, g, b);
+  const C = Math.sqrt(a * a + ob * ob);
+  let H = Math.atan2(ob, a) * 180 / Math.PI;
+  if (H < 0) H += 360;
+
+  const chromaThreshold = 0.03 + L * 0.04;
+  if (C < chromaThreshold) {
+    if (L > 0.93) return 'white';
+    if (L > 0.85) return 'near white';
+    if (L < 0.10) return 'black';
+    if (L < 0.20) return 'near black';
+    if (L > 0.60) return 'light gray';
+    if (L < 0.40) return 'dark gray';
+    return 'gray';
+  }
+
+  // --- Named color intercepts (checked before generic hue+prefix) ---
+
+  // Pink: red/magenta hues, light, enough chroma to read as colored
+  const isPinkHue = (H >= 340 || H <= 20) || (H >= 310 && H <= 360);
+  if (isPinkHue && L > 0.60 && C >= 0.06 && C < 0.20) return 'pink';
+  if (H >= 320 && H <= 360 && L > 0.55 && C >= 0.10) return 'pink';
+
+  // Hot pink / deep pink: vivid, mid-high lightness magenta-red
+  if (H >= 330 && H <= 360 && L > 0.45 && L < 0.65 && C >= 0.20) return 'hot pink';
+
+  // Salmon: light orange-red
+  if (H >= 15 && H <= 40 && L > 0.58 && C >= 0.06 && C < 0.16) return 'salmon';
+
+  // Peach: very light orange
+  if (H >= 40 && H <= 75 && L > 0.75 && C >= 0.04 && C < 0.12) return 'peach';
+
+  // Brown / tan (kept from before)
+  const isBrownHue = H >= 30 && H <= 80;
+  if (isBrownHue && L < 0.45 && C < 0.12) return L < 0.30 ? 'dark brown' : 'brown';
+  if (isBrownHue && L < 0.55 && C < 0.08) return 'tan';
+
+  // Maroon: dark red
+  if ((H <= 15 || H >= 345) && L < 0.35 && C < 0.15) return 'maroon';
+
+  // Olive: dark yellow-green, low chroma
+  if (H >= 80 && H <= 145 && L < 0.45 && C < 0.10) return 'olive';
+
+  // Lime: vivid yellow-green
+  if (H >= 100 && H <= 150 && L > 0.60 && C >= 0.18) return 'lime';
+
+  // Lavender: light blue-violet/violet
+  if (H >= 270 && H <= 320 && L > 0.65 && C >= 0.05 && C < 0.16) return 'lavender';
+
+  // Navy: dark blue
+  if (H >= 240 && H <= 280 && L < 0.30) return 'navy';
+
+  // Mint: light, vivid teal-green
+  if (H >= 145 && H <= 185 && L > 0.70 && C >= 0.07) return 'mint';
+
+  // Cream / ivory: very light warm neutral (low chroma yellow range)
+  if (H >= 60 && H <= 100 && L > 0.88 && C < 0.06) return 'cream';
+
+  // --- Generic hue + prefix ---
+
+  const hueNames = [
+    [ 12, 'red'],         [ 30, 'orange-red'],
+    [ 55, 'orange'],      [ 80, 'yellow-orange'],
+    [100, 'yellow'],      [145, 'yellow-green'],
+    [170, 'green'],       [200, 'teal'],
+    [230, 'cyan'],        [260, 'sky blue'],
+    [280, 'blue'],        [310, 'blue-violet'],
+    [330, 'violet'],      [350, 'magenta'],
+    [360, 'red'],
+  ];
+  let hueName = 'red';
+  for (const [h, name] of hueNames) {
+    if (H <= h) { hueName = name; break; }
+  }
+
+  let prefix = '';
+  if      (L > 0.85) prefix = C < 0.06 ? 'pale '       : 'very light ';
+  else if (L > 0.70) prefix = C < 0.08 ? 'pale '       : 'light ';
+  else if (L > 0.55) prefix = C < 0.08 ? 'soft '       : '';
+  else if (L > 0.40) prefix = C < 0.07 ? 'muted '      : '';
+  else if (L > 0.28) prefix = C < 0.06 ? 'muted dark ' : 'dark ';
+  else               prefix = 'deep ';
+
+  return prefix + hueName;
+}
+
+function isValidHex(h) { return /^#[0-9a-fA-F]{6}$/.test(h); }
+
+// State
+let colorA = '#e07020', colorB = '#1a8888', cellSize = 10;
+
+const pickerA = document.getElementById('color-a-picker');
+const hexA    = document.getElementById('color-a-hex');
+const pickerB = document.getElementById('color-b-picker');
+const hexB    = document.getElementById('color-b-hex');
+const dispA   = document.getElementById('disp-a');
+const dispB   = document.getElementById('disp-b');
+const canvas  = document.getElementById('checker-canvas');
+const ctx     = canvas.getContext('2d');
+const cellSlider = document.getElementById('cell-size');
+const cellVal    = document.getElementById('cell-size-val');
+const percSwatch = document.getElementById('perceived-swatch');
+const percHex    = document.getElementById('perceived-hex');
+const percName   = document.getElementById('perceived-name');
+
+function drawChecker() {
+  const W = canvas.offsetWidth || 640;
+  const H = canvas.offsetHeight || 120;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const cs = cellSize;
+  for (let y = 0; y < H; y += cs) {
+    for (let x = 0; x < W; x += cs) {
+      const even = ((Math.floor(x/cs) + Math.floor(y/cs)) % 2 === 0);
+      ctx.fillStyle = even ? colorA : colorB;
+      ctx.fillRect(x, y, cs, cs);
+    }
+  }
+}
+
+function update() {
+  dispA.style.background = colorA;
+  dispB.style.background = colorB;
+  drawChecker();
+
+  const mix = avgColor(colorA, colorB);
+  percSwatch.style.background = mix;
+  percHex.textContent = mix.toUpperCase();
+  percHex.style.color = mix;
+  percName.textContent = nameMix(mix);
+}
+
+// Sync picker ↔ hex for A
+pickerA.addEventListener('input', e => {
+  colorA = e.target.value;
+  hexA.value = colorA;
+  update();
+});
+hexA.addEventListener('input', e => {
+  const v = e.target.value.startsWith('#') ? e.target.value : '#'+e.target.value;
+  if (isValidHex(v)) { colorA = v; pickerA.value = v; update(); }
+});
+hexA.addEventListener('blur', () => { if (!isValidHex(hexA.value)) hexA.value = colorA; });
+
+// Sync picker ↔ hex for B
+pickerB.addEventListener('input', e => {
+  colorB = e.target.value;
+  hexB.value = colorB;
+  update();
+});
+hexB.addEventListener('input', e => {
+  const v = e.target.value.startsWith('#') ? e.target.value : '#'+e.target.value;
+  if (isValidHex(v)) { colorB = v; pickerB.value = v; update(); }
+});
+hexB.addEventListener('blur', () => { if (!isValidHex(hexB.value)) hexB.value = colorB; });
+
+// Cell size
+cellSlider.addEventListener('input', e => {
+  cellSize = parseInt(e.target.value);
+  cellVal.textContent = cellSize + 'px';
+  drawChecker();
+});
+
+// Build presets
+function buildPresets(containerId, which) {
+  const container = document.getElementById(containerId);
+  PRESETS.forEach(hex => {
+    const dot = document.createElement('button');
+    dot.className = 'preset';
+    dot.style.background = hex;
+    dot.title = hex;
+    dot.addEventListener('click', () => {
+      if (which === 'a') {
+        colorA = hex;
+        pickerA.value = hex;
+        hexA.value = hex;
+      } else {
+        colorB = hex;
+        pickerB.value = hex;
+        hexB.value = hex;
+      }
+      update();
+    });
+    container.appendChild(dot);
+  });
+}
+
+buildPresets('presets-a', 'a');
+buildPresets('presets-b', 'b');
+
+// Redraw on resize
+const ro = new ResizeObserver(() => drawChecker());
+ro.observe(canvas);
+
+update();
+</script>
+</body>
+</html>
+
